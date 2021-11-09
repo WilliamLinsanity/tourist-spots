@@ -64,16 +64,39 @@ position:relative;
         transform: translate(0, -50%);
     }
 `
+
 const Search = styled.img`
 position:absolute;
 top:50%;
 right: 28px;
 transform: translate(0, -50%);
 `
+const TopicBlock = styled.div`
+display:flex;
+flex-wrap: wrap;
+padding:12px 6px 0 6px;
+justify-content: center;
+img{
+    padding:8px 46px 0 46px;
+    width:70px;
+    height:70px;
+}
+`
 const SearchBlock = ()=>{
     const cityList =[
         {id:1,name:'新北市'},
         {id:2,name:'台北市'}
+    ]
+    const topicImgName = 'topic'
+    const topicContentList =[
+        {id:0,name:'歷史文化'},
+        {id:1,name:'戶外踏青'},
+        {id:2,name:'宗教巡禮'},
+        {id:3,name:'親子活動'},
+        {id:4,name:'風景區'},
+        {id:5,name:'美食品嘗'},
+        {id:6,name:'住宿推薦'},
+        {id:7,name:'觀光活動'},
     ]
     const [cityVisible,handleCitySelect] = useState(false)
     let [keyword,handleKeywordSelect] = useState('')
@@ -101,7 +124,17 @@ const SearchBlock = ()=>{
                 <KeywordInput  onChange={handleChange}/>
                 <Search src='../images/search.png' onClick={()=>handleKeywordSelect(keyword)}/>
             </KeywordSelect>
-            }            
+            }
+            <div>
+                精選主題
+                <TopicBlock>
+                   { 
+                   Array.from(Array(8),(event,index) =>{
+                     return (<img src={`../images/${topicImgName}${index}.png`} alt={`${topicImgName}${index}`}/>)
+                   })                
+                   }
+                </TopicBlock>
+            </div>
         </>
     )
 
