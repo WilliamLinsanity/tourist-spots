@@ -1,5 +1,11 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import jsSHA from 'jssha'
+
+const Search = styled.div`
+background-color:#fafafa;
+`
+
 const CitySelect = styled.div`
 padding: 0 16px;
 margin:8px 0;
@@ -26,10 +32,17 @@ right:12px;
 transform: translate(0, -50%);
 `
 const CityBlock = styled.div`
+position: absolute;
+left: 0;
+right: 0;
+z-index: 10;
+margin: 0 16px;
 background-color:#ffffff;
 height: calc(100vh/3);
 display: flex;
 justify-content:center;
+border-radius: 0 0 12px 12px;
+box-shadow: 0px 14px 24px rgba(0, 0, 0, 0.04);
 `
 
 const CityItem = styled.div`
@@ -65,7 +78,7 @@ position:relative;
     }
 `
 
-const Search = styled.img`
+const SearchImg = styled.img`
 position:absolute;
 top:50%;
 right: 28px;
@@ -81,6 +94,31 @@ img{
     width:70px;
     height:70px;
 }
+`
+const TopicItem = styled.div`
+padding:20px 6px 28px 6px;
+    img{
+        padding:8px 46px 0 46px;
+        width:70px;
+        height:70px;
+    }
+`
+const SearchBtnBlock = styled.div`
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+padding:8px 16px; 
+background-color:#ffffff;
+`
+
+const SearchBtn = styled.button`
+background-color: #3FB195;
+color:#ffffff;
+padding:10px 140px;
+border-radius: 8px;
+border: 0;
+white-space:nowrap;
 `
 const SearchBlock = ()=>{
     const cityList =[
@@ -98,14 +136,54 @@ const SearchBlock = ()=>{
         {id:6,name:'住宿推薦'},
         {id:7,name:'觀光活動'},
     ]
+
     const [cityVisible,handleCitySelect] = useState(false)
     let [keyword,handleKeywordSelect] = useState('')
+    const [isVisible,handleIsvisible] = useState(true)
+
+
+    useEffect(() => {
+
+        if(!isVisible){
+            handleCitySelect(false)
+            handleIsvisible(true)
+            handleSearch()
+        }
+    }, [isVisible]);
+
     const handleChange = (e) => {
         keyword = e.target.value
-      };
+    };
+    const getAuthorizationHeader = () =>{
+        //  填入自己 ID、KEY 開始
+        let AppID = '675dad84079841b3a881006714b3d91e';
+        let AppKey = 'D0MV31l-dasLMnv5qe9Ly56Rm6Y';
+        //  填入自己 ID、KEY 結束
+        let GMTString = new Date().toGMTString();
+        let ShaObj = new jsSHA('SHA-1', 'TEXT');
+        ShaObj.setHMACKey(AppKey, 'TEXT');
+        ShaObj.update('x-date: ' + GMTString);
+        let HMAC = ShaObj.getHMAC('B64');
+        let Authorization = 'hmac username="' + AppID + '", algorithm="hmac-sha1", headers="x-date", signature="' + HMAC + '"';
+        return { 'Authorization': Authorization, 'X-Date': GMTString }; 
+    }
+    const handleSearch = () =>{
+        return fetch(
+            'https://ptx.transportdata.tw/MOTC/v2/Rail/TRA/Station?$top=10&$format=JSON',
+            {
+               headers: getAuthorizationHeader()
+            }
+         )
+         .then(function (response) {
+           console.log(JSON.stringify(response.data))
+         })
+         .catch(function (error) {
+           console.log(error);
+         }); 
+    }
            
     return (
-        <>
+        <Search>
             <CitySelect>
                 <MultiSelect>
                     <Arrow src='../images/arrow.png' onClick={()=>handleCitySelect(!cityVisible)}/>
@@ -119,23 +197,28 @@ const SearchBlock = ()=>{
                     </CityBlock>
                 }            
             </CitySelect>
-            {
-                !cityVisible && <KeywordSelect>
+            <KeywordSelect>
                 <KeywordInput  onChange={handleChange}/>
-                <Search src='../images/search.png' onClick={()=>handleKeywordSelect(keyword)}/>
-            </KeywordSelect>
-            }
+                <SearchImg src='../images/search.png' onClick={()=>handleKeywordSelect(keyword)}/>
+            </KeywordSelect>            
             <div>
                 精選主題
                 <TopicBlock>
                    { 
                    Array.from(Array(8),(event,index) =>{
-                     return (<img src={`../images/${topicImgName}${index}.png`} alt={`${topicImgName}${index}`}/>)
-                   })                
-                   }
+                     return (
+                     <TopicItem  key={topicContentList[index].name}>
+                        <img src={`../images/${topicImgName}${index}.png`} alt={`${topicImgName}${index}`}/>
+                        <div>{topicContentList[index].name}</div>
+                     </TopicItem>
+                     )})                
+                   }                   
                 </TopicBlock>
+                <SearchBtnBlock>
+                   <SearchBtn onClick={() =>handleIsvisible(!cityVisible)}>開始搜尋</SearchBtn>
+                </SearchBtnBlock>
             </div>
-        </>
+        </Search>
     )
 
 }
