@@ -134,7 +134,7 @@ border-radius: 8px;
 border: 0;
 white-space: nowrap;
 `
-const SearchBlock = (props)=>{
+const SearchBlock = (props,ref)=>{
     const cityList =[
         {id:0,code:'NewTaipei',name:'新北市'},
         {id:1,code:'Taipei',name:'台北市'},
@@ -159,6 +159,13 @@ const SearchBlock = (props)=>{
     const [transformName,handleCityTransform] = useState('')
     let [keyword,handleKeywordSelect] = useState('')
 
+    useEffect(() => {
+        handCityVisible(false);
+        return () => {
+          setState(false); // This worked for me
+        };
+    }, []);
+
 
     useEffect(() => {
         if(!blockVisible){
@@ -172,6 +179,11 @@ const SearchBlock = (props)=>{
         const transForm = cityList.find(item=>item.code === city) || {}
         handleCityTransform(transForm.name)
     }, [city]);
+
+    const setState = (value) =>{
+        handCityVisible(value)
+    }
+
     const handleChange = (e) => {
         keyword = e.target.value
     };
@@ -195,7 +207,7 @@ const SearchBlock = (props)=>{
          )
          .then(res=>res.json())
          .then(function (response) {
-           console.log((response))
+            props.getSpotsList(response)
          })
          .catch(function (error) {
            console.log(error);
