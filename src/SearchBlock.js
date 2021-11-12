@@ -4,20 +4,23 @@ import jsSHA from 'jssha'
 
 const Search = styled.div`
 background-color:#fafafa;
+height: 100vh;
 `
 
-const CitySelect = styled.div`
+const CityContainer = styled.div`
 padding: 0 16px;
 margin:8px 0;
 `
+
 const MultiSelect = styled.div`
+cursor: pointer;
 height: 43px;
 border-radius:8px;
 background: #FAFAFA;
 border: 1px solid rgba(0, 0, 0, 0.08);
 position:relative;
 &:before{
-    content:'選擇目的地';
+    content:attr(data-before);
     position:absolute;
     top:50%;
     left: 12px;
@@ -25,6 +28,14 @@ position:relative;
     color: rgba(0, 0, 0, 0.38);
 }
 `;
+
+const CitySelect = styled.div`
+position: absolute;
+top:50%;
+left: 12px;
+transform: translate(0, -50%);
+`
+
 const Arrow =styled.img`
 position:absolute;
 top:50%;
@@ -40,7 +51,9 @@ margin: 0 16px;
 background-color:#ffffff;
 height: calc(100vh/3);
 display: flex;
-justify-content:center;
+justify-content:flex-start;
+align-content: flex-start;
+flex-wrap: wrap;
 border-radius: 0 0 12px 12px;
 box-shadow: 0px 14px 24px rgba(0, 0, 0, 0.04);
 `
@@ -52,6 +65,7 @@ border: 1px solid #3FB195;
 border-radius: 8px;
 padding: 6px 26px;
 height: 40px;
+white-space: nowrap;
 `
 
 const KeywordSelect = styled.div`
@@ -114,16 +128,18 @@ background-color:#ffffff;
 
 const SearchBtn = styled.button`
 background-color: #3FB195;
-color:#ffffff;
-padding:10px 140px;
+color: #ffffff;
+padding: 10px 140px;
 border-radius: 8px;
 border: 0;
-white-space:nowrap;
+white-space: nowrap;
 `
-const SearchBlock = ()=>{
+const SearchBlock = (props)=>{
     const cityList =[
-        {id:1,name:'新北市'},
-        {id:2,name:'台北市'}
+        {id:0,code:'NewTaipei',name:'新北市'},
+        {id:1,code:'Taipei',name:'台北市'},
+        {id:2,code:'Taoyuan',name:'桃園市'},
+        {id:3,code:'Hsinchu',name:'新竹縣'},
     ]
     const topicImgName = 'topic'
     const topicContentList =[
@@ -137,28 +153,31 @@ const SearchBlock = ()=>{
         {id:7,name:'觀光活動'},
     ]
 
-    const [cityVisible,handleCitySelect] = useState(false)
+    const [cityVisible,handCityVisible] = useState(false)
+    const [blockVisible,handleBlockVisible] = useState(props.isVisible)
+    const [city,handleCitySelect] = useState('')
+    const [transformName,handleCityTransform] = useState('')
     let [keyword,handleKeywordSelect] = useState('')
-    const [isVisible,handleIsvisible] = useState(true)
 
 
     useEffect(() => {
-
-        if(!isVisible){
-            handleCitySelect(false)
-            handleIsvisible(true)
+        if(!blockVisible){
+            handCityVisible(false)
             handleSearch()
+            props.changeVisible(!props.isVisible)
         }
-    }, [isVisible]);
+    }, [blockVisible]);
 
+    useEffect(() => {
+        const transForm = cityList.find(item=>item.code === city) || {}
+        handleCityTransform(transForm.name)
+    }, [city]);
     const handleChange = (e) => {
         keyword = e.target.value
     };
     const getAuthorizationHeader = () =>{
-        //  填入自己 ID、KEY 開始
         let AppID = '675dad84079841b3a881006714b3d91e';
         let AppKey = 'D0MV31l-dasLMnv5qe9Ly56Rm6Y';
-        //  填入自己 ID、KEY 結束
         let GMTString = new Date().toGMTString();
         let ShaObj = new jsSHA('SHA-1', 'TEXT');
         ShaObj.setHMACKey(AppKey, 'TEXT');
@@ -169,36 +188,40 @@ const SearchBlock = ()=>{
     }
     const handleSearch = () =>{
         return fetch(
-            'https://ptx.transportdata.tw/MOTC/v2/Rail/TRA/Station?$top=10&$format=JSON',
+            `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${city}?$top=10&$format=JSON`,
             {
                headers: getAuthorizationHeader()
             }
          )
+         .then(res=>res.json())
          .then(function (response) {
-           console.log(JSON.stringify(response.data))
+           console.log((response))
          })
          .catch(function (error) {
            console.log(error);
          }); 
     }
-           
     return (
+        <>
+        {
+            (props.isVisible || blockVisible) &&
         <Search>
-            <CitySelect>
-                <MultiSelect>
-                    <Arrow src='../images/arrow.png' onClick={()=>handleCitySelect(!cityVisible)}/>
+            <CityContainer>
+                <MultiSelect onClick={()=>handCityVisible(!cityVisible)} data-before={city?null:'選擇目的地'}>
+                   <CitySelect>{transformName}</CitySelect> 
+                    <Arrow src='../images/arrow.png' onClick={()=>handCityVisible(!cityVisible)}/>
                 </MultiSelect>
                 {
                     cityVisible && 
                     <CityBlock>
                         {cityList.map((item, i) => (
-                            <CityItem key={item.id}>{item.name}</CityItem>
+                            <CityItem key={item.id} onClick={()=>handleCitySelect(item.code)}>{item.name}</CityItem>
                         ))}
                     </CityBlock>
                 }            
-            </CitySelect>
+            </CityContainer>
             <KeywordSelect>
-                <KeywordInput  onChange={handleChange}/>
+                <KeywordInput onChange={handleChange}/>
                 <SearchImg src='../images/search.png' onClick={()=>handleKeywordSelect(keyword)}/>
             </KeywordSelect>            
             <div>
@@ -215,10 +238,12 @@ const SearchBlock = ()=>{
                    }                   
                 </TopicBlock>
                 <SearchBtnBlock>
-                   <SearchBtn onClick={() =>handleIsvisible(!cityVisible)}>開始搜尋</SearchBtn>
+                   <SearchBtn onClick={() =>handleBlockVisible(!props.isVisible)}>開始搜尋</SearchBtn>
                 </SearchBtnBlock>
             </div>
         </Search>
+        }
+        </>
     )
 
 }

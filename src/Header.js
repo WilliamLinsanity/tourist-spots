@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import SearchBlock from './SearchBlock'
 const Header = () =>{
     const [isVisible,setVisible] = useState(false)
+    const changeVisible = (value) =>{
+        setVisible(value)
+    }
     return(
         <>
             <header className="App-header">
@@ -9,7 +12,7 @@ const Header = () =>{
             <img src='../images/logo.png' alt="logo"/>
             </header>
             {
-                isVisible && <SearchBlock/> 
+                isVisible && <SearchBlock changeVisible={changeVisible} isVisible={isVisible}/> 
             }            
         </>
     )
