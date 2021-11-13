@@ -34,7 +34,7 @@ overflow:hidden;
 `
 
 const Card = styled.div`
-width:20%;
+width:40%;
 border-radius: 16px;
 background-color: #ccc;
 margin-right:24px;
@@ -70,7 +70,6 @@ width: 3em;
 height: 3em;
 border-radius: 50%;
 margin-right: 1.5em;
-// display:${({ isArrowVisible }) => (isArrowVisible ? 'inline-block':'none')};
     &:after{
         content: '';
         display: inline-block;
@@ -90,7 +89,6 @@ width: 3em;
 height: 3em;
 border-radius: 50%;
 margin-right: 1.5em;
-display:${({ isArrowVisible }) => (isArrowVisible ? 'inline-block':'none')};
     &:after{
         content: '';
         display: inline-block;
@@ -116,21 +114,48 @@ display:flex;
 const MainFrame = () =>{
     const [spots,getSpots] = useState([])
     const [arrowNumber,handleArrow] = useState(0)
-    const [isArrowVisible,handleArrowVisible] = useState(true)
+    const [isLeftArrowVisible,handleLeftArrowVisible] = useState(true)
+    const [isRightArrowVisible,handleRightArrowVisible] = useState(true)
     useEffect(() => {
         const splitArray =[]
-        for(let i=0,len=JSON.parse(localStorage.getItem('spots')).length;i<len;i+=4){
-            splitArray.push(JSON.parse(localStorage.getItem('spots')).slice(i,i+4));
-         }
+        if(JSON.parse(localStorage.getItem('spots')).length){
+            for(let i=0,len=JSON.parse(localStorage.getItem('spots')).length;i<len;i+=4){
+                splitArray.push(JSON.parse(localStorage.getItem('spots')).slice(i,i+4));
+             }
+        }
         getSpots(splitArray)
 
     }, [localStorage.getItem('spots')]);
-console.log(arrowNumber,isArrowVisible);
+    useEffect(() => {
+        handleRightArrowVisible(true)
+        handleLeftArrowVisible(true)
+        handleArrow(1)
+    }, [spots]);
+
     useEffect(() => {
         if(arrowNumber < 0){
-            handleArrowVisible(true)
+            handleLeftArrowVisible(true)
+            handleRightArrowVisible(true)
+        }else{
+            handleLeftArrowVisible(false)
+            handleRightArrowVisible(false)
         }
     }, [arrowNumber]);
+
+    const handleNumberChange = (value) =>{
+        console.log(value + arrowNumber , spots.length);
+        if(value + arrowNumber < spots.length){
+            handleArrow(value+arrowNumber)
+        }else if(value + arrowNumber < 0){
+            handleLeftArrowVisible(false)
+            handleRightArrowVisible(true)
+        }
+        else{
+            handleLeftArrowVisible(true)
+            handleRightArrowVisible(false)
+        }
+    }
+
     return(
         <Container>
             <Banner>
@@ -145,7 +170,8 @@ console.log(arrowNumber,isArrowVisible);
                     spots && <Attractions>
                     <div>熱門景點</div>
                     <CarouselArrow>
-                        <CarouselArrowLeft isArrowVisible={true} onClick={()=> handleArrow(isArrowVisible-1)}/>
+                        <CarouselArrowLeft isArrowVisible={true} onClick={()=> handleNumberChange(-1)} 
+                        style={{display: ({isLeftArrowVisible})=>(isLeftArrowVisible ? 'inline-block':'none')}}/>
                     </CarouselArrow>
                         <CardList>
                             {arrowNumber > 0 && spots[arrowNumber].map((item, i) => (
@@ -163,7 +189,9 @@ console.log(arrowNumber,isArrowVisible);
                             }
                         </CardList>
                     <CarouselArrow>
-                        <CarouselArrowRight onClick={()=> handleArrow(isArrowVisible+1)}/>
+                        <CarouselArrowRight onClick={()=> handleNumberChange(1)}
+                        style={{display: ({isRightArrowVisible})=>isRightArrowVisible ? 'inline-block':'none'}}/>
+                        {isRightArrowVisible ? '123':'456'}
                     </CarouselArrow>
                 </Attractions>
                 }

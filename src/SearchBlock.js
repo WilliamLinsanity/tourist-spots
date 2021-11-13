@@ -200,7 +200,7 @@ const SearchBlock = (props,ref)=>{
     }
     const handleSearch = () =>{
         return fetch(
-            `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${city}?$top=10&$format=JSON`,
+            `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${city}?$top=20&$format=JSON`,
             {
                headers: getAuthorizationHeader()
             }
