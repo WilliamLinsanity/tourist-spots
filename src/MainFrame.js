@@ -25,19 +25,22 @@ padding:40px 0 40px 24px;
 
 const FrameContainer = styled.div`
 height: 100vh;
+display:flex;
+justify-content: space-between;
 `
 
 const CardList = styled.div`
-display: flex;
-width:80%;
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+grid-gap: 20px;
 overflow:hidden;
 `
 
 const Card = styled.div`
-width:40%;
+width:250px;
 border-radius: 16px;
 background-color: #ccc;
-margin-right:24px;
+height: auto;
 `
 
 const CardPhoto = styled.img`
@@ -69,7 +72,9 @@ const CarouselArrowRight = styled.div`
 width: 3em;
 height: 3em;
 border-radius: 50%;
-margin-right: 1.5em;
+margin-left: 1.5em;
+position: fixed;
+right: 0;
     &:after{
         content: '';
         display: inline-block;
@@ -89,6 +94,8 @@ width: 3em;
 height: 3em;
 border-radius: 50%;
 margin-right: 1.5em;
+position: fixed;
+left: 0;
     &:after{
         content: '';
         display: inline-block;
@@ -105,7 +112,17 @@ margin-right: 1.5em;
 
 
 const Attractions = styled.div`
+display: flex;
+align-items: center;
+width: 100%;
+flex-direction: column;
+`
+const AttractionsTitle = styled.div`
 display:flex;
+justify-content:center;
+`
+const CardContainer = styled.div`
+display: flex;
 `
 // const Spots = styled.div`
 
@@ -113,47 +130,43 @@ display:flex;
 
 const MainFrame = () =>{
     const [spots,getSpots] = useState([])
+    const [classes,getClasses] = useState([])
     const [arrowNumber,handleArrow] = useState(0)
-    const [isLeftArrowVisible,handleLeftArrowVisible] = useState(true)
+    const [isLeftArrowVisible,handleLeftArrowVisible] = useState(false)
     const [isRightArrowVisible,handleRightArrowVisible] = useState(true)
     useEffect(() => {
         const splitArray =[]
-        if(JSON.parse(localStorage.getItem('spots')).length){
-            for(let i=0,len=JSON.parse(localStorage.getItem('spots')).length;i<len;i+=4){
-                splitArray.push(JSON.parse(localStorage.getItem('spots')).slice(i,i+4));
+        let classesList = []
+        if(JSON.parse(localStorage.getItem('spots')) && JSON.parse(localStorage.getItem('spots')).length){
+            for(let i=0,len=JSON.parse(localStorage.getItem('spots')).length;i<len;i+=3){
+                splitArray.push(JSON.parse(localStorage.getItem('spots')).slice(i,i+3));
              }
         }
+        JSON.parse(localStorage.getItem('spots')).map(item=>{
+            classesList.push(item.Class1)
+        })
+        getClasses([...new Set(classesList)].filter(item=>item))
         getSpots(splitArray)
-
     }, [localStorage.getItem('spots')]);
     useEffect(() => {
-        handleRightArrowVisible(true)
-        handleLeftArrowVisible(true)
         handleArrow(1)
     }, [spots]);
 
     useEffect(() => {
-        if(arrowNumber < 0){
+        if(arrowNumber <= 1){
+            handleLeftArrowVisible(false)
+            handleRightArrowVisible(true)
+        }else if(arrowNumber === spots.length - 1){
+            handleRightArrowVisible(false)
+        }else{
             handleLeftArrowVisible(true)
             handleRightArrowVisible(true)
-        }else{
-            handleLeftArrowVisible(false)
-            handleRightArrowVisible(false)
         }
     }, [arrowNumber]);
-
     const handleNumberChange = (value) =>{
-        console.log(value + arrowNumber , spots.length);
         if(value + arrowNumber < spots.length){
             handleArrow(value+arrowNumber)
-        }else if(value + arrowNumber < 0){
-            handleLeftArrowVisible(false)
-            handleRightArrowVisible(true)
-        }
-        else{
-            handleLeftArrowVisible(true)
-            handleRightArrowVisible(false)
-        }
+        } 
     }
 
     return(
@@ -166,33 +179,44 @@ const MainFrame = () =>{
                 <img src={`../images/people.png`} alt="banner"/>          
             </Banner>
             <FrameContainer>
+            {/* {classes &&
+                        classes.map(item=>{
+                            <AttractionsTitle> 
+                            {item}
+                        </AttractionsTitle>
+                        })
+            } */}
                 {
-                    spots && <Attractions>
-                    <div>熱門景點</div>
-                    <CarouselArrow>
-                        <CarouselArrowLeft isArrowVisible={true} onClick={()=> handleNumberChange(-1)} 
-                        style={{display: ({isLeftArrowVisible})=>(isLeftArrowVisible ? 'inline-block':'none')}}/>
-                    </CarouselArrow>
-                        <CardList>
-                            {arrowNumber > 0 && spots[arrowNumber].map((item, i) => (
-                                <Card key={item.ID}>
-                                    <CardPhoto src={item.Picture? item.Picture.PictureUrl1:''} alt={item.Picture? item.Picture.PictureDescription1:'spot'}/>
-                                    <CardTitle>{item.Name}</CardTitle>
-                                    <CardContent>
-                                        <CardPosition src={`../images/cardLocation.png`} alt="location"/>
-                                        {item.City}
-                                    </CardContent>
-                                </Card>
-                            ))}
-                            {
-                                !arrowNumber && '目前並未有資料'
-                            }
-                        </CardList>
-                    <CarouselArrow>
-                        <CarouselArrowRight onClick={()=> handleNumberChange(1)}
-                        style={{display: ({isRightArrowVisible})=>isRightArrowVisible ? 'inline-block':'none'}}/>
-                        {isRightArrowVisible ? '123':'456'}
-                    </CarouselArrow>
+                    spots &&<Attractions>
+                                           
+                        {classes.map(item=>{
+                            <AttractionsTitle>123</AttractionsTitle>
+                        })}
+                    <CardContainer>
+                        <CarouselArrow>
+                            <CarouselArrowLeft isArrowVisible={true} onClick={()=> handleNumberChange(-1)} 
+                            style= {{display: isLeftArrowVisible ? 'inline-block':'none'}}/>
+                        </CarouselArrow>
+                            <CardList>
+                                {arrowNumber > 0 && spots[arrowNumber].map((item, i) => (
+                                    <Card key={item.ID}>
+                                        <CardPhoto src={item.Picture? item.Picture.PictureUrl1:''} alt={item.Picture? item.Picture.PictureDescription1:'spot'}/>
+                                        <CardTitle>{item.Name}</CardTitle>
+                                        <CardContent>
+                                            <CardPosition src={`../images/cardLocation.png`} alt="location"/>
+                                            {item.City}
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                                {
+                                    !arrowNumber && '目前並未有資料'
+                                }
+                            </CardList>
+                        <CarouselArrow>
+                            <CarouselArrowRight onClick={()=> handleNumberChange(1)}
+                            style={{display: isRightArrowVisible ? 'inline-block':'none'}}/>
+                        </CarouselArrow>
+                    </CardContainer>
                 </Attractions>
                 }
                

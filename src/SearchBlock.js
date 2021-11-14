@@ -162,7 +162,7 @@ const SearchBlock = (props,ref)=>{
     useEffect(() => {
         handCityVisible(false);
         return () => {
-          setState(false); // This worked for me
+          setState(false);
         };
     }, []);
 
