@@ -1,13 +1,25 @@
 import './App.scss';
 import Header from './Header'
 import MainFrame from './MainFrame';
+import Detail from './Detail';
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+import reduce from "./components/redux/reduce";
+import { HashRouter, Route } from "react-router-dom";
+
+const store = createStore(reduce);
 
 function App() {
   return (
-    <div className="App">
-     <Header />
-     <MainFrame/>
-    </div>
+    <HashRouter>
+      <Provider store={store}>
+        <div className="App">
+        <Route path="/detail" component={Detail}/>
+          <Header />
+          <MainFrame/>
+        </div>
+      </Provider>
+    </HashRouter>
   );
 }
 

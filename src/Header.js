@@ -1,6 +1,10 @@
 import React, { useState,useEffect } from "react";
+import { useDispatch  } from 'react-redux';
+
 import SearchBlock from './SearchBlock'
 const Header = () =>{
+    const dispatch = useDispatch();
+
     const [isVisible,setVisible] = useState(false)
     const [spotsList,getSpotsList] = useState(null)
     const changeVisible = (value) =>{
@@ -8,12 +12,12 @@ const Header = () =>{
     }
     useEffect(() => {
         if(spotsList){
-            console.log(spotsList);
-            localStorage.setItem('spots',JSON.stringify(spotsList))
-        }
-        return () => {
-            getSpotsList(null)
-        };
+            dispatch({
+                type: 'ADD_SPOTSLIST',
+                payload: { spotsList },
+              });
+            // localStorage.setItem('spots',JSON.stringify(spotsList))
+        }       
     }, [spotsList]);
     return(
         <>

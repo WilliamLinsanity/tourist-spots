@@ -199,8 +199,9 @@ const SearchBlock = (props,ref)=>{
         return { 'Authorization': Authorization, 'X-Date': GMTString }; 
     }
     const handleSearch = () =>{
+        localStorage.setItem('cityName',JSON.stringify(city))
         return fetch(
-            `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${city}?$top=20&$format=JSON`,
+            `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${city}?$top=100&$format=JSON&$filter=Picture/PictureUrl1 ne null`,
             {
                headers: getAuthorizationHeader()
             }
