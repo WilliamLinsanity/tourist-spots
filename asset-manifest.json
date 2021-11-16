@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/tourist-spots/static/css/main.fa7ed867.chunk.css",
+    "main.js": "/tourist-spots/static/js/main.8de51caa.chunk.js",
+    "main.js.map": "/tourist-spots/static/js/main.8de51caa.chunk.js.map",
+    "runtime-main.js": "/tourist-spots/static/js/runtime-main.99047f32.js",
+    "runtime-main.js.map": "/tourist-spots/static/js/runtime-main.99047f32.js.map",
+    "static/js/2.583c86ac.chunk.js": "/tourist-spots/static/js/2.583c86ac.chunk.js",
+    "static/js/2.583c86ac.chunk.js.map": "/tourist-spots/static/js/2.583c86ac.chunk.js.map",
+    "static/js/3.ddfdc44d.chunk.js": "/tourist-spots/static/js/3.ddfdc44d.chunk.js",
+    "static/js/3.ddfdc44d.chunk.js.map": "/tourist-spots/static/js/3.ddfdc44d.chunk.js.map",
+    "index.html": "/tourist-spots/index.html",
+    "static/css/main.fa7ed867.chunk.css.map": "/tourist-spots/static/css/main.fa7ed867.chunk.css.map",
+    "static/js/2.583c86ac.chunk.js.LICENSE.txt": "/tourist-spots/static/js/2.583c86ac.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.99047f32.js",
+    "static/js/2.583c86ac.chunk.js",
+    "static/css/main.fa7ed867.chunk.css",
+    "static/js/main.8de51caa.chunk.js"
+  ]
+}
