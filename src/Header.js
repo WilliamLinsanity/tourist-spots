@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from "react";
 import { useDispatch  } from 'react-redux';
-
+import hamburger from './images/hamburger.png'
+import logo from './images/logo.png'
 import SearchBlock from './SearchBlock'
 const Header = () =>{
     const dispatch = useDispatch();
@@ -16,14 +17,13 @@ const Header = () =>{
                 type: 'ADD_SPOTSLIST',
                 payload: { spotsList },
               });
-            // localStorage.setItem('spots',JSON.stringify(spotsList))
         }       
-    }, [spotsList]);
+    }, [dispatch,spotsList]);
     return(
         <>
             <header className="App-header">
-                <img src='../images/hamburger.png' className="hamburger" alt="hamburger" onClick={()=>setVisible(!isVisible)} />
-                <img src='../images/logo.png' alt="logo"/>
+                <img src={hamburger} className="hamburger" alt="hamburger" onClick={()=>setVisible(!isVisible)} />
+                <img src={logo} alt="logo"/>
             </header>
             {
                 isVisible && <SearchBlock changeVisible={changeVisible} isVisible={isVisible} getSpotsList={getSpotsList}/> 

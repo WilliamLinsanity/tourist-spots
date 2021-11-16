@@ -1,6 +1,9 @@
 import styled from "@emotion/styled";
 import React, { useState, useEffect } from "react";
 import jsSHA from 'jssha'
+import search from './images/search.png'
+import arrow from './images/arrow.png'
+import env from 'react-dotenv'
 
 const Search = styled.div`
 background-color:#fafafa;
@@ -84,7 +87,7 @@ background: #FAFAFA;
 border: 1px solid rgba(0, 0, 0, 0.08);
 position:relative;
     &:after{
-        content:url('../images/search.png');
+        content:url(${search});
         position: absolute;
         top: 50%;
         right: 12px;
@@ -134,7 +137,7 @@ border-radius: 8px;
 border: 0;
 white-space: nowrap;
 `
-const SearchBlock = (props,ref)=>{
+const SearchBlock = (props)=>{
     const cityList =[
         {id:0,code:'NewTaipei',name:'新北市'},
         {id:1,code:'Taipei',name:'台北市'},
@@ -152,12 +155,12 @@ const SearchBlock = (props,ref)=>{
         {id:6,name:'住宿推薦'},
         {id:7,name:'觀光活動'},
     ]
-
     const [cityVisible,handCityVisible] = useState(false)
     const [blockVisible,handleBlockVisible] = useState(props.isVisible)
     const [city,handleCitySelect] = useState('')
     const [transformName,handleCityTransform] = useState('')
     let [keyword,handleKeywordSelect] = useState('')
+    const transForm = cityList.find(item=>item.code === city) || {}
 
     useEffect(() => {
         handCityVisible(false);
@@ -169,38 +172,10 @@ const SearchBlock = (props,ref)=>{
 
     useEffect(() => {
         if(!blockVisible){
-            handCityVisible(false)
-            handleSearch()
+            handCityVisible(false)            
             props.changeVisible(!props.isVisible)
-        }
-    }, [blockVisible]);
-
-    useEffect(() => {
-        const transForm = cityList.find(item=>item.code === city) || {}
-        handleCityTransform(transForm.name)
-    }, [city]);
-
-    const setState = (value) =>{
-        handCityVisible(value)
-    }
-
-    const handleChange = (e) => {
-        keyword = e.target.value
-    };
-    const getAuthorizationHeader = () =>{
-        let AppID = '675dad84079841b3a881006714b3d91e';
-        let AppKey = 'D0MV31l-dasLMnv5qe9Ly56Rm6Y';
-        let GMTString = new Date().toGMTString();
-        let ShaObj = new jsSHA('SHA-1', 'TEXT');
-        ShaObj.setHMACKey(AppKey, 'TEXT');
-        ShaObj.update('x-date: ' + GMTString);
-        let HMAC = ShaObj.getHMAC('B64');
-        let Authorization = 'hmac username="' + AppID + '", algorithm="hmac-sha1", headers="x-date", signature="' + HMAC + '"';
-        return { 'Authorization': Authorization, 'X-Date': GMTString }; 
-    }
-    const handleSearch = () =>{
-        localStorage.setItem('cityName',JSON.stringify(city))
-        return fetch(
+            localStorage.setItem('cityName',JSON.stringify(city))
+            return fetch(
             `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${city}?$top=100&$format=JSON&$filter=Picture/PictureUrl1 ne null`,
             {
                headers: getAuthorizationHeader()
@@ -213,7 +188,32 @@ const SearchBlock = (props,ref)=>{
          .catch(function (error) {
            console.log(error);
          }); 
+        }
+    }, [blockVisible,props,city]);
+
+    useEffect(() => {
+        handleCityTransform(transForm.name)
+    }, [transForm.name]);
+
+    const setState = (value) =>{
+        handCityVisible(value)
     }
+
+    const handleChange = (e) => {
+        keyword = e.target.value
+    };
+    const getAuthorizationHeader = () =>{
+        let AppID = env.APP_ID;
+        let AppKey = env.APP_KEY;
+        let GMTString = new Date().toGMTString();
+        let ShaObj = new jsSHA('SHA-1', 'TEXT');
+        ShaObj.setHMACKey(AppKey, 'TEXT');
+        ShaObj.update('x-date: ' + GMTString);
+        let HMAC = ShaObj.getHMAC('B64');
+        let Authorization = 'hmac username="' + AppID + '", algorithm="hmac-sha1", headers="x-date", signature="' + HMAC + '"';
+        return { 'Authorization': Authorization, 'X-Date': GMTString }; 
+    }
+
     return (
         <>
         {
@@ -222,7 +222,7 @@ const SearchBlock = (props,ref)=>{
             <CityContainer>
                 <MultiSelect onClick={()=>handCityVisible(!cityVisible)} data-before={city?null:'選擇目的地'}>
                    <CitySelect>{transformName}</CitySelect> 
-                    <Arrow src='../images/arrow.png' onClick={()=>handCityVisible(!cityVisible)}/>
+                    <Arrow src={arrow} onClick={()=>handCityVisible(!cityVisible)}/>
                 </MultiSelect>
                 {
                     cityVisible && 
@@ -235,7 +235,7 @@ const SearchBlock = (props,ref)=>{
             </CityContainer>
             <KeywordSelect>
                 <KeywordInput onChange={handleChange}/>
-                <SearchImg src='../images/search.png' onClick={()=>handleKeywordSelect(keyword)}/>
+                <SearchImg src={search} onClick={()=>handleKeywordSelect(keyword)}/>
             </KeywordSelect>            
             <div>
                 精選主題
@@ -244,7 +244,7 @@ const SearchBlock = (props,ref)=>{
                    Array.from(Array(8),(event,index) =>{
                      return (
                      <TopicItem  key={topicContentList[index].name}>
-                        <img src={`../images/${topicImgName}${index}.png`} alt={`${topicImgName}${index}`}/>
+                        <img src={`${process.env.PUBLIC_URL}/images/${topicImgName}${index}.png`} alt={`${topicImgName}${index}`}/>
                         <div>{topicContentList[index].name}</div>
                      </TopicItem>
                      )})                

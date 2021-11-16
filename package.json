@@ -1,7 +1,6 @@
 {
-  "name": "tourist-app",
+  "name": "tourist-spots",
   "version": "0.1.0",
-  "homepage": "https://williamlinsanity.github.io/tourist-spots",
   "private": true,
   "dependencies": {
     "@emotion/css": "^11.5.0",
@@ -15,15 +14,16 @@
     "node-sass": "^6.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-dotenv": "^0.1.3",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.0.2",
     "react-scripts": "4.0.3",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "deploy": "gh-pages -d build",
-    "build": "react-scripts build",
+    "start": "react-dotenv && react-scripts start",
+    "deploy": "react-scripts build  && gh-pages -d build",
+    "build": "react-dotenv && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -32,6 +32,9 @@
       "react-app",
       "react-app/jest"
     ]
+  },
+  "react-dotenv": {
+    "whitelist": ["APP_ID","APP_KEY"]
   },
   "browserslist": {
     "production": [

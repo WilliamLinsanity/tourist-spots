@@ -7,7 +7,6 @@ const initState = {
 const reduce = (state = initState, action) => {
   switch (action.type) {
     case ADD_SPOTSLIST: {   
-      console.log(action.payload.spotsList);   
       return {
         spotsList: action.payload.spotsList,
       };

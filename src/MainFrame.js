@@ -2,6 +2,9 @@ import styled from "@emotion/styled";
 import React, { useState, useRef, useEffect } from "react";
 import {useSelector, useDispatch} from 'react-redux'
 import jsSHA from 'jssha'
+import cardLocation from './images/cardLocation.png'
+import people from './images/people.png'
+import env from 'react-dotenv'
 
 const Container = styled.div`
 padding: 20px 16px 0 16px;
@@ -127,16 +130,10 @@ align-items: center;
 width: 100%;
 flex-direction: column;
 `
-const AttractionsTitle = styled.div`
-display:flex;
-justify-content:center;
-`
+
 const CardContainer = styled.div`
 display: flex;
 `
-// const Spots = styled.div`
-
-// `
 
 const MainFrame = () =>{
     const dispatch = useDispatch();
@@ -150,22 +147,31 @@ const MainFrame = () =>{
     const [isRightArrowVisible,handleRightArrowVisible] = useState(true)
          
     useEffect(() => {
-        handleSearch(cityName)    
+        return fetch(
+            `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${cityName}?$top=20&$format=JSON&$filter=Picture/PictureUrl1 ne null`,
+            {
+               headers: getAuthorizationHeader()
+            }
+         )
+         .then(res=>res.json())
+         .then(function (response) {
+            dispatch({
+                type: 'ADD_SPOTSLIST',
+                payload: { spotsList: response },
+              });
+         })
+         .catch(function (error) {
+           console.log(error);
+         });   
 
-    }, [cityName]);
+    }, [dispatch,cityName]);
     useEffect(() => {
         
         const splitArray =[]
-        // let classesList = []     
         if(spotsList && spotsList.length){
-            console.log();
             for(let i= 0, len= spotsList.length; i< len; i+=6){
                 splitArray.push(spotsList.slice(i,i+6));
-             }
-            //  spotsList.forEach(item=>{
-            //      classesList.push(item.Class1)
-            //  })
-            //  getClasses([...new Set(classesList)].filter(item=>item))
+             }          
              getSpots(splitArray)  
         }
     }, [spotsList]);
@@ -185,32 +191,13 @@ const MainFrame = () =>{
     }, [arrowNumber,spots]);
 
     const handleNumberChange = (value) =>{
-        console.log(blockSelected.current);
         if(value + arrowNumber < spots.length){
             handleArrow(value + arrowNumber)
         } 
-    }
-    const handleSearch = (cityName) =>{
-        return fetch(
-            `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${cityName}?$top=20&$format=JSON&$filter=Picture/PictureUrl1 ne null`,
-            {
-               headers: getAuthorizationHeader()
-            }
-         )
-         .then(res=>res.json())
-         .then(function (response) {
-            dispatch({
-                type: 'ADD_SPOTSLIST',
-                payload: { spotsList: response },
-              });
-         })
-         .catch(function (error) {
-           console.log(error);
-         }); 
-    }
+    }    
     const getAuthorizationHeader = () =>{
-        let AppID = '675dad84079841b3a881006714b3d91e';
-        let AppKey = 'D0MV31l-dasLMnv5qe9Ly56Rm6Y';
+        let AppID = env.APP_ID;
+        let AppKey = env.APP_KEY;
         let GMTString = new Date().toGMTString();
         let ShaObj = new jsSHA('SHA-1', 'TEXT');
         ShaObj.setHMACKey(AppKey, 'TEXT');
@@ -229,16 +216,13 @@ const MainFrame = () =>{
                     <div>探索。</div>
                     <div>福爾摩沙</div>
                 </BannerTitle> 
-                <img src={`../images/people.png`} alt="banner"/>          
+                <img src={people} alt="banner"/>          
             </Banner>
             <FrameContainer>
                 {
                      spots.length > 0&&
                     <Attractions>
-                        <CardContainer>
-                            {/* <AttractionsTitle key={item}>
-                                {item}
-                            </AttractionsTitle>                                */}
+                        <CardContainer>                            
                             <CarouselArrow>
                                 <CarouselArrowLeft isArrowVisible={true} ref={blockSelected} onClick={(event)=> handleNumberChange(-1,)} 
                                 style= {{display: isLeftArrowVisible ? 'inline-block':'none'}}/>
@@ -249,7 +233,7 @@ const MainFrame = () =>{
                                             <CardPhoto src={spot.Picture? spot.Picture.PictureUrl1:''} alt={spot.Picture? spot.Picture.PictureDescription1:'spot'} onClick={handleDetail}/>
                                             <CardTitle>{spot.Name}</CardTitle>
                                             <CardContent>
-                                                <CardPosition src={`../images/cardLocation.png`} alt="location"/>
+                                                <CardPosition src={cardLocation} alt="location"/>
                                                 {spot.City}
                                             </CardContent>
                                         </Card>
